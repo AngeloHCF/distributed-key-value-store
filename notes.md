@@ -30,6 +30,7 @@ Why do I need #include <WS2tcpip.h> if I have <WinSock2.h>?
 
 What's WSADATA?
 
+- WSA = Window Sockets API
 - WSADATA is a structure, which contains fields that store information about the initialized Winsock implementation
 
 What's WSAStartup(MAKEWORD(2, 2), &wsaData)?

@@ -17,6 +17,16 @@ int main() {
     return 1;
   }
 
+  // Create a TCP socket
+  SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+  if(serverSocket == INVALID_SOCKET) {
+    cout << "Failed to create socket\n";
+    WSACleanup();
+    return 1;
+  }
+
+  cout << "Socket created successfully!\n";
 
   // Program exits
   WSACleanup();
