@@ -27,3 +27,15 @@ What's the difference between IPv4 and IPv6?
 Why do I need #include <WS2tcpip.h> if I have <WinSock2.h>?
 
 - You don't need <WS2tcpip.h> to create a basic TCP server. <WS2tcpip.h> is only needed if you use additional TCP/IP features such as IPv6 or modern IP address conversion functions.
+
+What's WSADATA?
+
+- WSADATA is a structure, which contains fields that store information about the initialized Winsock implementation
+
+What's WSAStartup(MAKEWORD(2, 2), &wsaData)?
+
+- WSAStartup is the function that initializes the Winsock library and fills the WSADATA structure with information about the installed Winsock implementation.
+
+Why do we need WSACleanup() at the end?
+
+- WSAClean() tells Windows that your program is finished using the Winsock library, allowing the operating system to release any resources it allocated during WSAStartup(). It's good practice to pair every successful WSAStartup() with a corresponding WSACleanup()
