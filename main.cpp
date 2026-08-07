@@ -44,7 +44,36 @@ int main() {
     return 1;
   }
 
-  cout << "Server bound to port 8080\n";
+  cout << "Server is listening on port 8080...\n";
+
+
+  // Make the socket listen for incoming client connections
+  if(listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
+    cout << "Listen failed\n";
+    closesocket(serverSocket);
+    WSACleanup();
+    return 1;
+  }
+
+  // Accept so server can wait for a client to connect
+  sockaddr_in clientAddress{};
+  int clientSize = sizeof(clientAddress);
+
+  SOCKET clientSocket = accept(
+    serverSocket,
+    reinterpret_cast<sockaddr*>(&clientAddress),
+    &clientSize
+  );
+
+  if(clientSocket == INVALID_SOCKET) {
+    cout << "Accept failed\n";
+    closesocket(serverSocket);
+    WSACleanup();
+    return 1;
+  }
+
+  cout << "Client connected\n";
+
 
 
   // Program exits
