@@ -40,3 +40,37 @@ What's WSAStartup(MAKEWORD(2, 2), &wsaData)?
 Why do we need WSACleanup() at the end?
 
 - WSAClean() tells Windows that your program is finished using the Winsock library, allowing the operating system to release any resources it allocated during WSAStartup(). It's good practice to pair every successful WSAStartup() with a corresponding WSACleanup()
+
+# Day 2
+
+- Bind the socket to an IP address and port so the OS knows where your esrver should receive connections
+
+sockaddr serverAddress
+
+- Creates an empty structure that will store the server's IP address, address type, and port
+
+serverAddress.sin_family = AF_INET | Address Family - Internet
+
+- Specifies that the server will use IPv4 addresses
+
+serverAddress.sin_addr.s_addr = INADDR_ANY | Internet Address Any
+
+- telling the server to listen to all available IPv4 network interfaces/IP addresses on your computer
+- sin_addr is a structure inside serverAddress, and s_addr is the actual IPv4 address value stored inside that structure
+
+serverAddress.sin_port = htons(8080) | Host TO Network Short
+
+- converts 8080 to a 16 bit value in network byte order
+- Short means a short integer, traditionally 16-bit (2-byte)
+
+bind(serverSocket, reinterpret_cast<sockaddr\*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR
+
+- bind() attaches serverSocket to the IP address and port 8080 stored in serverAddress, and == SOCKET_ERROR checks whether that attachment failed
+
+What's reinterpret cast?
+
+- is a C++ cast that tells the compiler to treat the same memory/address as a different type, without actually changing the underlying data
+
+Why do we need reinterpret cast?
+
+- Bind() expects a sockaddr*, but we have a sockaddr_in* so reinterpret_cast lets us pass our IPv4 address structure to bind() in the type it expects

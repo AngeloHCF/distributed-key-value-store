@@ -26,7 +26,26 @@ int main() {
     return 1;
   }
 
-  cout << "Socket created successfully!\n";
+  cout << "TCP Socket created successfully!\n";
+
+  // Bind socket to my computer
+  sockaddr_in serverAddress{};
+
+  serverAddress.sin_family = AF_INET;
+
+  serverAddress.sin_addr.s_addr = INADDR_ANY;
+
+  serverAddress.sin_port = htons(8080);
+
+  if(bind(serverSocket, reinterpret_cast<sockaddr*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
+    cout << "Bind failed\n";
+    closesocket(serverSocket);
+    WSACleanup();
+    return 1;
+  }
+
+  cout << "Server bound to port 8080\n";
+
 
   // Program exits
   WSACleanup();
