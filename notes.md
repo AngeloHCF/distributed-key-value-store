@@ -74,3 +74,82 @@ What's reinterpret cast?
 Why do we need reinterpret cast?
 
 - Bind() expects a sockaddr*, but we have a sockaddr_in* so reinterpret_cast lets us pass our IPv4 address structure to bind() in the type it expects
+
+# Day 3
+
+MAIN.CPP
+
+Why do we need an array named buffer with 1024 available elements?
+
+- the 1024 byte buffer provides temporary memory where recv() stores incoming TCP data. The size is an arbitrary practical limit for each read, not a requirement imposed by TCP. If more than 1024 bytes arrive, the remaining data must be sent with an additional recv() call.
+
+- it's called buffer because it temporarily holds data while it moves between the network and your program
+
+Why do we do sizeof(buffer) - 1?
+
+- Leaves on byte available for the null terminator '\0', allowing the received data to be safely treated as a C-style string.
+
+What's the 0 at the end in recv()?
+
+- the final 0 means no special receive flags are enabled, so recv() uses its normal behavior.
+
+What does recv return?
+
+- recv() returns the number of bytes received, 0 if the client closed the connection normally, or SOCKET_ERROR (-1) if an error occurred. If the client sends "Hello", then recv() stores those 5 character in the buffer and returns 5.
+
+if(bytesReceived > 0) {
+buffer[bytesReceived] = '\0';
+cout << "Client sent: " << buffer << '\n';
+}
+
+- buffer[bytesReceived] sets the index at bytesReceived to \0, the null terminator. When the buffer is treated as a string, functions like cout read from the beginning and stop when they reach that \0.
+
+CLIENT.CPP
+
+What does send() return?
+
+- send() returns the number of bytes successfully accepted for sending, or SOCKET_ERROR -1 if an error occurs; it may retunr fewer bytes than requested.
+
+EXAMPLE: If you send "Hello" (5 bytes), send() will usually return 5, meaning all 5 bytes were accepted for sending. If you request that 5 bytes be sent but send() returns 3, only "Hel" was accepted, so you must called send() again with the remaining "lo".
+
+What arguments does send() accept?
+
+- clientSocket: the connected socket
+- message.c_str(): the data to send
+- message.size(): the number of bytes to send
+- 0: no spceial sending options (flags)
+
+What's message.c_str()?
+
+- returns a pointer to the characters inside the C++ std::string, allowing send() to read and transmit them. It returns the string's characters in the null terminated format traditionally used by C.
+
+message.c_str()
+│
+▼
+┌───┬───┬───┬───┬───┬──────┐
+│ H │ e │ l │ l │ o │ '\0' │
+└───┴───┴───┴───┴───┴──────┘
+▲
+pointer
+
+What's static_cast?
+
+- static_cast explicity converts a value from one compatible type to another at compile time, such as converting message.size() from size_t to the int expected by send()
+
+Why do we need shutdown, closesocket to send the data?
+
+- It was failing because WSACleanup() ran immediately after send() while the socket was still open, potentially discarding data that TCP had not transmitted yet. shutdown() and closesocket() give the connection an orderly ending before Winsock is cleaned up.
+
+What's the difference between shutdown, closesocket and WSACleanup?
+
+- shutdown: changes the TCP connection state. It tells Winsock that your program will send no more bytes, so TCP transmits any queued bytes and then sends a FIN. The socket handle remains valid, and you can still receive data.
+
+- closesocket: releases that specific socket handle and its associated resources, such as send/receiuve buffers and TCP connection state. With normal socket settings, windows continues handling an orderly TCP close
+
+- wsacleanup: matches a previous WSAStartup() call and decreases Winsock's per process reference count. When the count reaches zero, Winsock terminates the program's use of the library and release its remaining resources
+
+What's SD_SEND in shutdown(clientSocket, SD_SEND)?
+
+- SD_SEND tells shutdown() to disable only the sending side of the socket; queued data is transmitted, TCP signals that no more data is coming, and the socket may still receive data.
+
+Other options are: SD_RECEIVE: stop receiving, SD_BOTH: stop both sending and receiving

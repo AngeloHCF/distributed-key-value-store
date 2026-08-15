@@ -29,6 +29,23 @@ int main() {
   }
 
   cout << "Connected to server\n";
+
+  // After the client is connected send string message
+  string message = "Hello Server this is the Client";
+
+  int bytesSent = send(
+    clientSocket,
+    message.c_str(),
+    static_cast<int>(message.size()),
+    0
+  );
+
+  if(bytesSent == SOCKET_ERROR) {
+    cout << "Send failed: " << WSAGetLastError() << "\n";
+  }
+
+  shutdown(clientSocket, SD_SEND);
+  closesocket(clientSocket);
   WSACleanup();
   return 0;
 }

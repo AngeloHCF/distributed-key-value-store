@@ -74,6 +74,16 @@ int main() {
 
   cout << "Client connected\n";
 
+  // Receive data from the connected client using recv()
+  char buffer[1024];
+
+  int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+
+  if(bytesReceived > 0) {
+    buffer[bytesReceived] = '\0';
+    cout << "Client sent: " << buffer << '\n';
+  }
+
 
 
   // Program exits
