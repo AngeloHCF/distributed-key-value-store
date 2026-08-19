@@ -11,6 +11,8 @@ using namespace std;
 
 
 int main() {
+  // Store the key-value pair in an unordered_map
+  unordered_map<string, string> store;
   
   // Initialize Winsock before creating any sockets
   WSADATA wsaData;
@@ -48,8 +50,7 @@ int main() {
 
   cout << "Server is listening on port 8080...\n";
 
-
-  // Make the socket listen for incoming client connections
+  // Make the socket listen for incoming client connections, you only need to put the server into listening mode once
   if(listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
     cout << "Listen failed\n";
     closesocket(serverSocket);
@@ -57,69 +58,72 @@ int main() {
     return 1;
   }
 
-  // Accept so server can wait for a client to connect
-  sockaddr_in clientAddress{};
-  int clientSize = sizeof(clientAddress);
+  // Make server stay alive and accept multiple clients
+  while(true) {  
 
-  SOCKET clientSocket = accept(
-    serverSocket,
-    reinterpret_cast<sockaddr*>(&clientAddress),
-    &clientSize
-  );
+    // Accept so server can wait for a client to connect
+    sockaddr_in clientAddress{};
+    int clientSize = sizeof(clientAddress);
+    
+    SOCKET clientSocket = accept(
+      serverSocket,
+      reinterpret_cast<sockaddr*>(&clientAddress),
+      &clientSize
+    );
+    
+    if(clientSocket == INVALID_SOCKET) {
+      cout << "Accept failed\n";
+      closesocket(serverSocket);
+      WSACleanup();
+      return 1;
+    }
+    
+    cout << "Client connected\n";
+    
+    // Receive data from the connected client using recv()
+    char buffer[1024];
+    
+    int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+    
+    if(bytesReceived > 0) {
+      buffer[bytesReceived] = '\0';
+      cout << "Client sent: " << buffer << '\n';
+    }
+    
+    // Key-value store protocol
+    string request(buffer);
+    
+    stringstream ss(request);
+    
+    string command;
+    string key;
+    string value;
+    
+    ss >> command >> key >> value;
+    
+    cout << "Command: " << command << "\n";
+    cout << "Key: " << key << "\n";
+    cout << "Value: " << value << "\n";
+    
 
-  if(clientSocket == INVALID_SOCKET) {
-    cout << "Accept failed\n";
-    closesocket(serverSocket);
-    WSACleanup();
-    return 1;
-  }
-
-  cout << "Client connected\n";
-
-  // Receive data from the connected client using recv()
-  char buffer[1024];
-
-  int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-
-  if(bytesReceived > 0) {
-    buffer[bytesReceived] = '\0';
-    cout << "Client sent: " << buffer << '\n';
-  }
-
-  // Key-value store protocol
-  string request(buffer);
-
-  stringstream ss(request);
-
-  string command;
-  string key;
-  string value;
-
-  ss >> command >> key >> value;
-
-  cout << "Command: " << command << "\n";
-  cout << "Key: " << key << "\n";
-  cout << "Value: " << value << "\n";
-
-  // Store the key-value pair in an unordered_map
-  unordered_map<string, string> store;
-
-  string response;
-  
-  if(command == "PUT") {
-    store[key] = value;
-    response = "OK";
-  } else if(command == "GET") {
-    if(store.count(key))
+    
+    string response;
+    
+    if(command == "PUT") {
+      store[key] = value;
+      response = "OK";
+    } else if(command == "GET") {
+      if(store.count(key))
       response = store[key];
-    else
+      else
       response = "Key not found!";
+    }
+    
+    send(clientSocket, response.c_str(), static_cast<int>(response.size()), 0);
   }
-
-  send(clientSocket, response.c_str(), static_cast<int>(response.size()), 0);
-
-  // Program exits
-  WSACleanup();
+    
+    // Program exits
+    WSACleanup();
   return 0;
   
 }
