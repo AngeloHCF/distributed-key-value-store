@@ -1,6 +1,7 @@
 #include <iostream>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
+#include <sstream>
 
 using namespace std;
 
@@ -31,7 +32,9 @@ int main() {
   cout << "Connected to server\n";
 
   // After the client is connected send string message
-  string message = "PUT name angelo";
+  string message;
+  cout << "> ";
+  getline(cin, message);
 
   int bytesSent = send(
     clientSocket,

@@ -101,22 +101,27 @@ int main() {
     
     ss >> command >> key >> value;
     
-    cout << "Command: " << command << "\n";
-    cout << "Key: " << key << "\n";
-    cout << "Value: " << value << "\n";
-    
-
+    // cout << "Command: " << command << "\n";
+    // cout << "Key: " << key << "\n";
+    // cout << "Value: " << value << "\n";
     
     string response;
     
     if(command == "PUT") {
       store[key] = value;
-      response = "OK";
+      response = "OK\n";
     } else if(command == "GET") {
       if(store.count(key))
-      response = store[key];
+        response = store[key];
       else
-      response = "Key not found!";
+        response = "Key not found!\n";
+    } else if (command == "DELETE") {
+      if(store.count(key)) {
+        store.erase(key);
+        response = "Deleted\n";
+      } else {
+        response = "Key not found!\n";
+      }
     }
     
     send(clientSocket, response.c_str(), static_cast<int>(response.size()), 0);
