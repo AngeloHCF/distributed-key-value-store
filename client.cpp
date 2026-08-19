@@ -44,6 +44,20 @@ int main() {
     cout << "Send failed: " << WSAGetLastError() << "\n";
   }
 
+  char buffer[1024];
+
+  int bytesReceived = recv(
+    clientSocket,
+    buffer,
+    sizeof(buffer) - 1,
+    0
+  );
+
+  if (bytesReceived > 0) {
+    buffer[bytesReceived] = '\0';
+    cout << "Server response: " << buffer << "\n";
+  }
+
   shutdown(clientSocket, SD_SEND);
   closesocket(clientSocket);
   WSACleanup();

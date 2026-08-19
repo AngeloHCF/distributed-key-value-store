@@ -1,7 +1,8 @@
 #include <iostream>
 #include <WinSock2.h> // Socket
 #include <WS2tcpip.h> // TCP
-#include <sstream>
+#include <sstream> // stringstream
+#include <unordered_map>
 
 using namespace std;
 
@@ -99,6 +100,23 @@ int main() {
   cout << "Command: " << command << "\n";
   cout << "Key: " << key << "\n";
   cout << "Value: " << value << "\n";
+
+  // Store the key-value pair in an unordered_map
+  unordered_map<string, string> store;
+
+  string response;
+  
+  if(command == "PUT") {
+    store[key] = value;
+    response = "OK";
+  } else if(command == "GET") {
+    if(store.count(key))
+      response = store[key];
+    else
+      response = "Key not found!";
+  }
+
+  send(clientSocket, response.c_str(), static_cast<int>(response.size()), 0);
 
   // Program exits
   WSACleanup();
