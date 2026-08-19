@@ -1,6 +1,7 @@
 #include <iostream>
 #include <WinSock2.h> // Socket
 #include <WS2tcpip.h> // TCP
+#include <sstream>
 
 using namespace std;
 
@@ -84,7 +85,20 @@ int main() {
     cout << "Client sent: " << buffer << '\n';
   }
 
+  // Key-value store protocol
+  string request(buffer);
 
+  stringstream ss(request);
+
+  string command;
+  string key;
+  string value;
+
+  ss >> command >> key >> value;
+
+  cout << "Command: " << command << "\n";
+  cout << "Key: " << key << "\n";
+  cout << "Value: " << value << "\n";
 
   // Program exits
   WSACleanup();

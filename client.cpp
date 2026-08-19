@@ -31,7 +31,7 @@ int main() {
   cout << "Connected to server\n";
 
   // After the client is connected send string message
-  string message = "Hello Server this is the Client";
+  string message = "PUT name angelo";
 
   int bytesSent = send(
     clientSocket,

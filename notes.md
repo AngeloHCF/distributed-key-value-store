@@ -153,3 +153,9 @@ What's SD_SEND in shutdown(clientSocket, SD_SEND)?
 - SD_SEND tells shutdown() to disable only the sending side of the socket; queued data is transmitted, TCP signals that no more data is coming, and the socket may still receive data.
 
 Other options are: SD_RECEIVE: stop receiving, SD_BOTH: stop both sending and receiving
+
+# Day 5
+
+#include <sstream> gives you string stream tools like stringstream, which lets you and write to strings
+
+string request(buffer); creates a C++ std::string named request and initializes it with thes text stored in the C-Style character array buffer
